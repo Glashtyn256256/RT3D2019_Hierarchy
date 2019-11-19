@@ -109,8 +109,7 @@ Robot::Robot(std::string filepath)
 
 	for (int i = 1; i < skeletonParts.size() ; i++) //Start at one because you don't need a mesh for the root
 	{
-		static CommonMesh* s_sMesh;
-		meshCollection.push_back(s_sMesh);
+		meshCollection.push_back(nullptr);
 	}
 
 }
