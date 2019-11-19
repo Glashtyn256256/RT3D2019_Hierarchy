@@ -2,6 +2,8 @@
 #include "Heightmap.h"
 #include "Aeroplane.h"
 #include "Robot.h"
+#include "AnimationDataDae.h"
+class AnimationDataDae;
 
 Application* Application::s_pApp = NULL;
 
@@ -25,7 +27,8 @@ bool Application::HandleStart()
 	m_pAeroplane = new Aeroplane(0.0f, 3.5f, 0.0f, 105.0f);
 	//m_pRobot = new Robot("aeroplanehierarchy.txt");
 	m_pRobot = new Robot("hierarchy.txt");
-	
+	AnimationDataDae test;
+	test.readDaeFile();
 
 	m_pAeroplane->LoadResources();
 	m_pRobot->LoadResources();

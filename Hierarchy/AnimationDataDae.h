@@ -3,16 +3,23 @@
 
 #include "Application.h"
 
+struct bone {
+	std::string boneName; //getboneName
+	int keyframeCount;
+	std::vector<float> time;
+	std::vector<XMFLOAT3> translate;
+	std::vector<XMFLOAT3> rotation;
+};
+
 class AnimationDataDae 
 {
 public:
-	XMFLOAT3 Transform;
-	XMFLOAT3 Rotation;
-
+	
+	std::vector<bone> boneAnimation;
+	void readDaeFile();
 private:
 
 };
-
 
 
 
