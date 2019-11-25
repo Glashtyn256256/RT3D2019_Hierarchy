@@ -2,13 +2,19 @@
 #define ANIMATION_DATA_DAE_H
 
 #include "Application.h"
+#include "tinyxml2.h"
 
 struct bone {
 	std::string boneName; //getboneName
-	int keyframeCount;
-	std::vector<float> time;
+
+	std::vector <float> tranTime;
+	std::vector<float> rotTime;
 	std::vector<XMFLOAT3> translate;
-	std::vector<XMFLOAT3> rotation;
+	std::vector<float> rotX;
+	std::vector<float> rotY;
+	std::vector<float> rotZ;
+	int tranKeyframeCount;
+	int rotKeyframeCount;
 };
 
 class AnimationDataDae 
