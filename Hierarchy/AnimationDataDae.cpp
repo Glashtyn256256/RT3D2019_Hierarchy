@@ -11,9 +11,11 @@ void AnimationDataDae::readDaeFile()
 {
 	const char* filePath = "Resources/Robot/MayaFiles/RobotIdleAnim.dae";
 	std::stringstream textLineFromFile;
-	bone newBone;
+
+	
 	int count;
 	XMFLOAT3 splitTransform;
+	bone* newBone = new bone;
 	std::string transOrRot;
 	std::string textFromDaeFile;
 	tinyxml2::XMLDocument daeFile;
@@ -24,13 +26,15 @@ void AnimationDataDae::readDaeFile()
 		tinyxml2::XMLElement *parent = daeFile.FirstChildElement("COLLADA")->FirstChildElement("library_animations");
 		for (tinyxml2::XMLElement *child = parent->FirstChildElement(); child != NULL; child = child->NextSiblingElement())
 		{
+			bool isSameBone = false;
 			textLineFromFile = std::stringstream(child->Attribute("id"));
 			getline(textLineFromFile,textFromDaeFile, '.');
-			if (newBone.boneName != textFromDaeFile)
+			if (newBone->boneName != textFromDaeFile)
 			{
-				bone newBone;
+				newBone = new bone;
+				isSameBone = true;
 			}
-			newBone.boneName = textFromDaeFile;
+			newBone->boneName = textFromDaeFile;
 			getline(textLineFromFile, transOrRot, '.'); //lets us know if it's translation or toation may need to change though
 			int loopCycle = 1;
 			for (tinyxml2::XMLElement *floatArray = child->FirstChildElement(); floatArray != NULL; floatArray = floatArray->NextSiblingElement())
@@ -48,7 +52,7 @@ void AnimationDataDae::readDaeFile()
 									getline(textLineFromFile, textFromDaeFile, ' ');
 									if (loopCycle == 1) //one means input which is time and two means output which is xyz co-ords
 									{
-										newBone.tranTime.push_back(std::stof(textFromDaeFile));
+										newBone->tranTime.push_back(std::stof(textFromDaeFile));
 									}
 									else {
 										splitTransform.x = std::stof(textFromDaeFile);
@@ -59,8 +63,7 @@ void AnimationDataDae::readDaeFile()
 										i++;
 										splitTransform.z = std::stof(textFromDaeFile);
 										
-										newBone.translate.push_back(splitTransform);
-										
+										newBone->translate.push_back(splitTransform);	
 									}
 									
 								}
@@ -72,10 +75,10 @@ void AnimationDataDae::readDaeFile()
 							getline(textLineFromFile, textFromDaeFile, ' ');
 							if (loopCycle == 1)
 							{
-								newBone.rotTime.push_back(std::stof(textFromDaeFile));
+								newBone->rotTime.push_back(std::stof(textFromDaeFile));
 							}
 							else {
-								newBone.rotX.push_back(std::stof(textFromDaeFile));
+								newBone->rotX.push_back(std::stof(textFromDaeFile));
 
 							}//may need to change newbone from a struct to a class
 
@@ -88,7 +91,7 @@ void AnimationDataDae::readDaeFile()
 							getline(textLineFromFile, textFromDaeFile, ' ');
 							if (loopCycle == 2) 
 							{
-								newBone.rotY.push_back(std::stof(textFromDaeFile));
+								newBone->rotY.push_back(std::stof(textFromDaeFile));
 							}
 						}
 					}
@@ -99,7 +102,7 @@ void AnimationDataDae::readDaeFile()
 							getline(textLineFromFile, textFromDaeFile, ' ');
 							if (loopCycle == 2)
 							{
-								newBone.rotZ.push_back(std::stof(textFromDaeFile));
+								newBone->rotZ.push_back(std::stof(textFromDaeFile));
 							}
 						}
 					}
@@ -110,26 +113,11 @@ void AnimationDataDae::readDaeFile()
 				}
 				loopCycle++;
 			}
-
-			//textFromDaeFile = std::string(child->FirstChildElement()->FirstChildElement("float_array")->Attribute("count"));
-			//int count = std::stoi(textFromDaeFile);
-			//tinyxml2::XMLElement *floatArray = child->FirstChildElement("source")->FirstChildElement("float_array");
-			//textLineFromFile = std::stringstream(child->FirstChildElement()->FirstChildElement("float_array")->GetText());
-			//tinyxml2::XMLText* textNode = child->FirstChildElement()->FirstChildElement("float_array")->GetText();
-
-			//if (transOrRot == "translate")
-			//{
-			//	for (int i = 0; i < count; i++)
-			//	{
-			//		getline(textLineFromFile, textFromDaeFile, ' ');
-			//		newBone.tranTime.push_back(std::stof(textFromDaeFile));
-			//	}
-			//}
-
-			
-			boneAnimation.push_back(newBone);
+			if (isSameBone)
+			{
+				boneAnimation.push_back(newBone);
+			}
 		}
-		boneAnimation.push_back(newBone);
 	}
 	else 
 	{

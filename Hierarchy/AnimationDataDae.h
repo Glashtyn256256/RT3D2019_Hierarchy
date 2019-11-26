@@ -13,6 +13,7 @@ struct bone {
 	std::vector<float> rotX;
 	std::vector<float> rotY;
 	std::vector<float> rotZ;
+	float currentTime;
 	int tranKeyframeCount;
 	int rotKeyframeCount;
 };
@@ -21,7 +22,7 @@ class AnimationDataDae
 {
 public:
 	
-	std::vector<bone> boneAnimation;
+	std::vector<bone*> boneAnimation;
 	void readDaeFile();
 private:
 
