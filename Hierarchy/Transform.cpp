@@ -9,7 +9,8 @@ XMMATRIX Transform::CalculateLocalMatrix(const XMFLOAT4& skeletonpos, const XMFL
 	mRotY = XMMatrixRotationY(XMConvertToRadians(skeletonrot.y));
 	mRotZ = XMMatrixRotationZ(XMConvertToRadians(skeletonrot.z));
 
-	return XMMATRIX(mRotZ * mRotX * mRotY * mTrans);
+	//While it's humanoid it can be X Y Z no need to worry about gimbo lock due to the animations etc
+	return XMMATRIX(mRotX * mRotY * mRotZ * mTrans);
 }
 
 XMMATRIX Transform::CalculateWorldMatrix(const XMMATRIX& m_mskeletonlocal, const XMMATRIX& m_mskeletonparent, const XMMATRIX& m_mskeletonworld)

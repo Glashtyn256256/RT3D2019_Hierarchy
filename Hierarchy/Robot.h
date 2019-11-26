@@ -11,19 +11,21 @@
 #include <sstream> // need for string stream
 #include "Transform.h"
 
-class Robot
+__declspec(align(16)) class Robot
 {
 public:
-	Robot(std::string filePath);
+	Robot(std::string filePath, float wPosX, float wPosY, float wPosZ, float wPosW, float wRotX, float wRotY, float wRotZ, float wRotW);
+	void ReadTextFileAndSetUpModel(std::string filepath);
 	~Robot(void);
 
-	void LoadResources(void);
+	void SetWorldPosition(float wposX, float wposY, float wposZ, float wposW, float wrotX, float wrotY, float wrotZ, float wrotW);
+	void LoadResources(Robot* robotmesh);
 	void ReleaseResources(void);
-
 	void UpdateMatrices(void);
 	void Update();
 	void DrawAll(void);
-	Transform transform;
+	void SetUpMeshes();
+	
 	
 	//void SetWorldPosition(float fX, float fY, float fZ);
 private:
@@ -34,6 +36,9 @@ private:
 	std::vector<int> skeletonPartsParent; 
 	std::string folderName;
 	XMFLOAT4 m_v4WorldPosition;
+	XMFLOAT4 m_v4RotationPosition;
 	std::vector<CommonMesh*> meshCollection;
+	XMMATRIX m_mWorldPosition;
+	Transform transform;
 };
 #endif

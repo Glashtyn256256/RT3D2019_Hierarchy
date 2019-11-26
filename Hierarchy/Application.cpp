@@ -26,12 +26,18 @@ bool Application::HandleStart()
 	m_pHeightMap = new HeightMap("Resources/heightmap.bmp", 2.0f);
 	m_pAeroplane = new Aeroplane(0.0f, 3.5f, 0.0f, 105.0f);
 	//m_pRobot = new Robot("aeroplanehierarchy.txt");
-	m_pRobot = new Robot("hierarchy.txt");
+	m_pRobot  = new Robot("hierarchy.txt", 0.0f, 2.4f, -20.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	m_pRobot1 = new Robot("hierarchy.txt", 0.0f, 2.4f, 20.0f, 0.0f, 0.0f, 180.0f, 0.0f, 0.0f);
+	m_pRobot2 = new Robot("hierarchy.txt", 20.0f, 2.4f, 0.0f, 0.0f, 0.0f, 270.0f, 0.0f, 0.0f);
+	m_pRobot3 = new Robot("hierarchy.txt", -20.0f, 2.4f, 0.0f, 0.0f, 0.0f, 90.0f, 0.0f, 0.0f);
 	AnimationDataDae test;
 	test.readDaeFile();
 
 	m_pAeroplane->LoadResources();
-	m_pRobot->LoadResources();
+	m_pRobot->LoadResources(m_pRobot);
+	m_pRobot1->LoadResources(m_pRobot);
+	m_pRobot2->LoadResources(m_pRobot);
+	m_pRobot3->LoadResources(m_pRobot);
 
 	m_cameraZ = 50.0f;
 	m_rotationAngle = 0.f;
@@ -54,8 +60,12 @@ void Application::HandleStop()
 	delete m_pHeightMap;
 	Aeroplane::ReleaseResources();
 	delete m_pAeroplane;
-	m_pRobot->ReleaseResources();
+	m_pRobot->ReleaseResources(); //Only need to release the first one since every other robot is using it
 	delete m_pRobot;
+	delete m_pRobot1;
+	delete m_pRobot2;
+	delete m_pRobot3;
+
 
 	this->CommonApp::HandleStop();
 }
@@ -109,7 +119,11 @@ void Application::HandleUpdate()
 	}
 
 	m_pAeroplane->Update(m_cameraState != CAMERA_MAP);
+	
 	m_pRobot->Update();
+	m_pRobot1->Update();
+	m_pRobot2->Update();
+	m_pRobot3->Update();
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -160,6 +174,9 @@ void Application::HandleRender()
 	m_pHeightMap->Draw();
 	m_pAeroplane->Draw();
 	m_pRobot->DrawAll();
+	m_pRobot1->DrawAll();
+	m_pRobot2->DrawAll();
+	m_pRobot3->DrawAll();
 }
 
 //////////////////////////////////////////////////////////////////////
