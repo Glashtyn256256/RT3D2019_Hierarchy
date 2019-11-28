@@ -66,7 +66,7 @@ Aeroplane::GunBullet::GunBullet(XMMATRIX bulletworldposition)
 	bulletScale = { 0.1f, 0.1f, 0.1f, 0.0f };
 	mTran = XMMatrixTranslationFromVector(XMLoadFloat4(&bulletOffset));
 	mScale = XMMatrixScalingFromVector(XMLoadFloat4(&bulletScale));
-	bulletWorldPosition = mScale *  bulletworldposition;
+	bulletWorldPosition = mScale * mTran * bulletworldposition;
 	survivalTime = 0.0f;
 	speedBullet = 4.0f;
 }
