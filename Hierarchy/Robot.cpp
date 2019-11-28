@@ -168,12 +168,18 @@ void Robot::Update()
 
 	if (currentAnimation)
 	{
+
+		//debug helper delete when done
 		if (count == 86) {
 			count++;
 		}
-		animTime += 1.0f / 60;
+
+		//deltatime
+		animTime += 1.0f / 180;
 		for (int i = 0; i < skeletonParts.size(); i++)
 		{
+
+			//Gets the correct animation thanks to the naming
 			SkeletonAnimationData* data = currentAnimation->boneAnimation[skeletonParts[i].GetPartName()];
 			if (data)
 			{
@@ -204,18 +210,19 @@ void Robot::Update()
 						float tY = data->translate[currentTranFrame].y;
 						float tZ = data->translate[currentTranFrame].z;
 						float tW = data->translate[currentTranFrame].w;
-					/*	if (!(animTime >= translationEndTime))
-						{*/
-						float tLerp = (animTime - data->previousTranslationTime) / (translationEndTime - data->previousTranslationTime);
-						if (!(std::isinf(tLerp)))
+						if (!(animTime >= translationEndTime))
 						{
-						XMVECTOR startTranslation = XMVectorSet(previousTranslationF4.x, previousTranslationF4.y, previousTranslationF4.z, previousTranslationF4.w);
-						XMVECTOR previousTranslation = XMVectorSet(tX, tY, tZ, tW);
-						XMVECTOR newTranslation = XMVectorLerp(startTranslation, previousTranslation, tLerp);
-						XMFLOAT4 newTranslationF4;
-						XMStoreFloat4(&newTranslationF4, newTranslation);
+							float tLerp = (animTime - data->previousTranslationTime) / (translationEndTime - data->previousTranslationTime);
+							if (!(std::isinf(tLerp)))
+							{
+								XMVECTOR startTranslation = XMVectorSet(previousTranslationF4.x, previousTranslationF4.y, previousTranslationF4.z, previousTranslationF4.w);
+								XMVECTOR previousTranslation = XMVectorSet(tX, tY, tZ, tW);
+								XMVECTOR newTranslation = XMVectorLerp(startTranslation, previousTranslation, tLerp);
+								XMFLOAT4 newTranslationF4;
+								XMStoreFloat4(&newTranslationF4, newTranslation);
 
-						bone.SetSkeletonOffsetPosition(newTranslationF4.x, newTranslationF4.y, newTranslationF4.z, 0.0f);
+								bone.SetSkeletonOffsetPosition(newTranslationF4.x, newTranslationF4.y, newTranslationF4.z, 0.0f);
+							}
 						}
 						else
 						{
@@ -251,25 +258,26 @@ void Robot::Update()
 							float prZ = data->rotZ[currentRotFrame - 1];
 							previousRotationF4 = XMFLOAT4(prX, prY, prZ, 0.0f);
 						}
-
-						float rLerp = (animTime - data->previousRotationTime) / (rotationEndTime - data->previousRotationTime);
-						if (!(std::isinf(rLerp)))
+						if (!(animTime >= rotationEndTime))
 						{
-							float rX = data->rotX[currentRotFrame];
-							float rY = data->rotY[currentRotFrame];
-							float rZ = data->rotZ[currentRotFrame];
+							float rLerp = (animTime - data->previousRotationTime) / (rotationEndTime - data->previousRotationTime);
+							if (!(std::isinf(rLerp)))
+							{
+								float rX = data->rotX[currentRotFrame];
+								float rY = data->rotY[currentRotFrame];
+								float rZ = data->rotZ[currentRotFrame];
 
-							XMVECTOR startRotation = XMVectorSet(previousRotationF4.x, previousRotationF4.y, previousRotationF4.z, 0.0f);
-							XMVECTOR previousRotation = XMVectorSet(rX, rY, rZ, 0.0f);
+								XMVECTOR startRotation = XMVectorSet(previousRotationF4.x, previousRotationF4.y, previousRotationF4.z, 0.0f);
+								XMVECTOR previousRotation = XMVectorSet(rX, rY, rZ, 0.0f);
 
 
-							XMVECTOR newRotation = XMVectorLerp(startRotation, previousRotation, rLerp);
-							XMFLOAT4 newRotationF4;
-							XMStoreFloat4(&newRotationF4, newRotation);
+								XMVECTOR newRotation = XMVectorLerp(startRotation, previousRotation, rLerp);
+								XMFLOAT4 newRotationF4;
+								XMStoreFloat4(&newRotationF4, newRotation);
 
-							bone.SetSkeletonRotationPosition(newRotationF4.x, newRotationF4.y, newRotationF4.z, 0.0f);
+								bone.SetSkeletonRotationPosition(newRotationF4.x, newRotationF4.y, newRotationF4.z, 0.0f);
+							}
 						}
-						
 
 						if (animTime >= rotationEndTime)
 						{
