@@ -1,6 +1,7 @@
 #ifndef ROBOT_H
 #define ROBOT_H
 
+#include "AnimationDataDae.h"
 #include "Application.h"
 #include <iostream>
 #include <String>
@@ -25,6 +26,8 @@ public:
 	void Update();
 	void DrawAll(void);
 	void SetUpMeshes();
+
+	void SetUpAnimations(void);
 	
 	
 	//void SetWorldPosition(float fX, float fY, float fZ);
@@ -40,5 +43,13 @@ private:
 	std::vector<CommonMesh*> meshCollection;
 	XMMATRIX m_mWorldPosition;
 	Transform transform;
+	int count = 0;
+	float animTime;
+
+	AnimationDataDae* currentAnimation;
+
+	AnimationDataDae* animationAttack;
+	AnimationDataDae* animationIdle;
+	AnimationDataDae* animationDeath;
 };
 #endif

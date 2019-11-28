@@ -7,15 +7,19 @@
 #include <algorithm> // need for std::replace that erase uses
 #include <sstream> // need for string stream
 
-void AnimationDataDae::readDaeFile()
+AnimationDataDae::AnimationDataDae(const char* filePath) 
 {
-	const char* filePath = "Resources/Robot/MayaFiles/RobotIdleAnim.dae";
+	readDaeFile(filePath);
+}
+
+void AnimationDataDae::readDaeFile(const char* filePath)
+{
 	std::stringstream textLineFromFile;
 
-	
+	endTime = 0;
 	int count;
-	XMFLOAT3 splitTransform;
-	bone* newBone = new bone;
+	XMFLOAT4 splitTransform;
+	SkeletonAnimationData* newBone = new SkeletonAnimationData;
 	std::string transOrRot;
 	std::string textFromDaeFile;
 	tinyxml2::XMLDocument daeFile;
@@ -31,7 +35,7 @@ void AnimationDataDae::readDaeFile()
 			getline(textLineFromFile,textFromDaeFile, '.');
 			if (newBone->boneName != textFromDaeFile)
 			{
-				newBone = new bone;
+				newBone = new SkeletonAnimationData;
 				isSameBone = true;
 			}
 			newBone->boneName = textFromDaeFile;
@@ -52,16 +56,21 @@ void AnimationDataDae::readDaeFile()
 									getline(textLineFromFile, textFromDaeFile, ' ');
 									if (loopCycle == 1) //one means input which is time and two means output which is xyz co-ords
 									{
-										newBone->tranTime.push_back(std::stof(textFromDaeFile));
+										float time = std::stof(textFromDaeFile);
+										newBone->tranTime.push_back(time);
+
+										if (endTime < time)
+											endTime = time;
 									}
 									else {
-										splitTransform.x = std::stof(textFromDaeFile);
+										splitTransform.x = std::stof(textFromDaeFile) * 0.1f;
 										getline(textLineFromFile, textFromDaeFile, ' ');
 										i++;
-										splitTransform.y = std::stof(textFromDaeFile);
+										splitTransform.y = std::stof(textFromDaeFile) * 0.1f;
 										getline(textLineFromFile, textFromDaeFile, ' ');
 										i++;
-										splitTransform.z = std::stof(textFromDaeFile);
+										splitTransform.z = std::stof(textFromDaeFile) * 0.1f;
+										splitTransform.w = 0.0f;
 										
 										newBone->translate.push_back(splitTransform);	
 									}
@@ -75,7 +84,11 @@ void AnimationDataDae::readDaeFile()
 							getline(textLineFromFile, textFromDaeFile, ' ');
 							if (loopCycle == 1)
 							{
-								newBone->rotTime.push_back(std::stof(textFromDaeFile));
+								float time = std::stof(textFromDaeFile);
+								if (endTime < time)
+									endTime = time;
+
+								newBone->rotTime.push_back(time);
 							}
 							else {
 								newBone->rotX.push_back(std::stof(textFromDaeFile));
@@ -115,7 +128,7 @@ void AnimationDataDae::readDaeFile()
 			}
 			if (isSameBone)
 			{
-				boneAnimation.push_back(newBone);
+				boneAnimation.insert(std::make_pair(newBone->boneName, newBone));
 			}
 		}
 	}
@@ -124,4 +137,19 @@ void AnimationDataDae::readDaeFile()
 
 	}
 
+}
+
+AnimationDataDae::~AnimationDataDae()
+{
+	std::for_each(boneAnimation.begin(), boneAnimation.end(), [](std::pair<std::string, SkeletonAnimationData* > data)
+	{
+		//key is the first value, second is the value of the animation data on the heap.
+		delete data.second;
+	});
+}
+
+SkeletonAnimationData::SkeletonAnimationData() : tranCurrentFrame(0), rotCurrentFrame(0)
+{
+	previousRotationTime = 0;
+	previousTranslationTime = 0;
 }

@@ -41,7 +41,7 @@ public:
 		partName = partname;
 	}
 
-	void SetSkeletonOffesetPosition(float x, float y, float z, float w)
+	void SetSkeletonOffsetPosition(float x, float y, float z, float w)
 	{
 		m_v4SkeletonPositionOffset.x = x;
 		m_v4SkeletonPositionOffset.y = y;
@@ -56,6 +56,8 @@ public:
 		m_v4SkeletonRotation.z = z;
 		m_v4SkeletonRotation.w = w;
 	}
+
+
 	//void Update(bool bPlayerControl); // Player only has control of plane when flag is set
 	//void Draw(void);
 

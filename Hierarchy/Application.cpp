@@ -30,8 +30,7 @@ bool Application::HandleStart()
 	m_pRobot1 = new Robot("hierarchy.txt", 0.0f, 2.4f, 20.0f, 0.0f, 0.0f, 180.0f, 0.0f, 0.0f);
 	m_pRobot2 = new Robot("hierarchy.txt", 20.0f, 2.4f, 0.0f, 0.0f, 0.0f, 270.0f, 0.0f, 0.0f);
 	m_pRobot3 = new Robot("hierarchy.txt", -20.0f, 2.4f, 0.0f, 0.0f, 0.0f, 90.0f, 0.0f, 0.0f);
-	AnimationDataDae test;
-	test.readDaeFile();
+
 
 	m_pAeroplane->LoadResources();
 	m_pRobot->LoadResources(m_pRobot);
@@ -121,9 +120,9 @@ void Application::HandleUpdate()
 	m_pAeroplane->Update(m_cameraState != CAMERA_MAP);
 	
 	m_pRobot->Update();
-	m_pRobot1->Update();
+	/*m_pRobot1->Update();
 	m_pRobot2->Update();
-	m_pRobot3->Update();
+	m_pRobot3->Update();*/
 }
 
 //////////////////////////////////////////////////////////////////////
