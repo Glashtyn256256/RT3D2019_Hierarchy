@@ -14,6 +14,7 @@ CommonMesh* Aeroplane::s_pPlaneMesh = NULL;
 CommonMesh* Aeroplane::s_pPropMesh = NULL;
 CommonMesh* Aeroplane::s_pTurretMesh = NULL;
 CommonMesh* Aeroplane::s_pGunMesh = NULL;
+CommonMesh* Aeroplane::s_pBulletMesh = NULL;
 
 bool Aeroplane::s_bResourcesReady = false;
 
@@ -37,6 +38,10 @@ Aeroplane::Aeroplane(float fX, float fY, float fZ, float fRotY)
 	m_v4GunOff = XMFLOAT4(0.0f, 0.5f, 0.0f, 0.0f);
 	m_v4GunRot = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 
+	m_v4BulletOff = XMFLOAT4(0.0f, 0.0f, 1.2f, 0.0f);
+	m_v4BulletRot = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
+	m_v4BulletScale = XMFLOAT4(0.1f, 0.1f, 0.1f, 0.0f);
+
 	m_v4CamOff = XMFLOAT4(0.0f, 4.5f, -15.0f, 0.0f);
 	m_v4CamRot = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 
@@ -44,12 +49,26 @@ Aeroplane::Aeroplane(float fX, float fY, float fZ, float fRotY)
 	m_vForwardVector = XMVectorZero();
 
 	m_fSpeed = 0.0f;
-
+	test = 0;
 	m_bGunCam = false;
 }
 
 Aeroplane::~Aeroplane(void)
 {
+}
+Aeroplane::GunBullet::GunBullet(XMMATRIX bulletworldposition)
+{
+	XMMATRIX  mScale, mTran;
+
+
+	bulletOffset = {0.0f, 0.0f, 1.4f, 0.0f}; //this needs sorting you pleb
+	bulletRotation = { 0.0f,0.0f,0.0f,0.0f };
+	bulletScale = { 0.1f, 0.1f, 0.1f, 0.0f };
+	mTran = XMMatrixTranslationFromVector(XMLoadFloat4(&bulletOffset));
+	mScale = XMMatrixScalingFromVector(XMLoadFloat4(&bulletScale));
+	bulletWorldPosition = mScale *  bulletworldposition;
+	survivalTime = 0.0f;
+	speedBullet = 4.0f;
 }
 
 void Aeroplane::SetWorldPosition(float fX, float fY, float fZ)
@@ -60,7 +79,7 @@ void Aeroplane::SetWorldPosition(float fX, float fY, float fZ)
 
 void Aeroplane::UpdateMatrices(void)
 {
-	XMMATRIX mRotX, mRotY, mRotZ, mTrans;
+	XMMATRIX mRotX, mRotY, mRotZ, mTrans, mScale;
 	XMMATRIX mPlaneCameraRot, mForwardMatrix;
 
 
@@ -107,9 +126,9 @@ void Aeroplane::UpdateMatrices(void)
 	mRotX = XMMatrixRotationX(XMConvertToRadians(m_v4GunRot.x));
 	mRotY = XMMatrixRotationY(XMConvertToRadians(m_v4GunRot.y));
 	mRotZ = XMMatrixRotationZ(XMConvertToRadians(m_v4GunRot.z));
+	
 	XMMATRIX m_mLocalGun = mRotZ * mRotX *  mRotY * mTrans;
 	m_mGunWorldMatrix = m_mLocalGun * m_mTurretWorldMatrix;
-	m_mGunWorldMatrix = m_mLocalGun * m_mLocalTurret* m_mWorldMatrix;
 
 	// Calculate m_mCameraWorldMatrix for camera based on Euler rotation angles and position data.
 	mTrans = XMMatrixTranslationFromVector(XMLoadFloat4(&m_v4CamOff));
@@ -133,10 +152,38 @@ void Aeroplane::UpdateMatrices(void)
 	// Get the camera's world position (m_vCamWorldPos) out of m_mCameraWorldMatrix
 	m_vCamWorldPos = m_mCamWorldMatrix.r[3];
 	
+	if (bulletContainer.size() > 0)
+	{
+		for (int i = 0; i < bulletContainer.size(); i++)
+		{
+
+			mTrans = XMMatrixTranslationFromVector(XMLoadFloat4(&bulletContainer[i]->bulletOffset));
+			bulletContainer[i]->bulletWorldPosition =  mTrans * bulletContainer[i]->bulletWorldPosition;
+		}
+	}
+	
+	
+}
+
+void Aeroplane::deleteBullet()
+{
+	for (int i = 0; i < bulletContainer.size(); i++)
+	{
+		if (bulletContainer[i]->survivalTime > 5.0f)
+		{
+
+			delete(bulletContainer[i]); //delete the pointer stop memory leaks
+			bulletContainer.erase(bulletContainer.begin()); //remove the empty vector position
+			--i; //Go back to the start of the vector
+		}
+		
+	}
 }
 
 void Aeroplane::Update(bool bPlayerControl)
 {
+	deleteBullet();
+	
 	// DON'T DO THIS UNTIL YOu HAVE COMPLETED THE FUNCTION ABOVE
 	if(bPlayerControl)
 	{
@@ -211,20 +258,43 @@ void Aeroplane::Update(bool bPlayerControl)
 				m_v4Rot.z += 1.f; //roll
 			}
 		}
-	} // End of if player control
 
+	
+
+	} // End of if player control
+	if (Application::s_pApp->IsKeyPressed(VK_SPACE))
+	{
+		//instantiate a new bullet
+		newBullet = new GunBullet(m_mGunWorldMatrix);
+		//add it to the vector of bullets
+		bulletContainer.push_back(newBullet);
+	}
+	
 	// Apply a forward thrust and limit to a maximum speed of 1
+
+	
+
 	m_fSpeed += 0.001f;
 
 	if(m_fSpeed > 1)
-		m_fSpeed = 1;
+		m_fSpeed = 1.0f;
+
+	if (bulletContainer.size() > 0)
+	{
+		for (int i = 0; i < bulletContainer.size(); i++)
+		{
+			bulletContainer[i]->survivalTime += 1.0 / 60.0f;
+			bulletContainer[i]->bulletOffset.z += bulletContainer[i]->speedBullet + m_fSpeed;
+		}
+	}
+
 	
 	// Rotate propeller and turret
 	m_v4PropRot.z += 100 * m_fSpeed;
-	m_v4TurretRot.y += 0.1f;
-	//m_v4Rot.y += 10 ;
+	//m_v4TurretRot.y += 0.1f;
+	//m_v4Rot.y += 10 ; 
 	// Tilt gun up and down as turret rotates
-	m_v4GunRot.x = (sin((float)XMConvertToRadians(m_v4TurretRot.y * 4.0f)) * 10.0f) - 10.0f;
+	//m_v4GunRot.x = (sin((float)XMConvertToRadians(m_v4TurretRot.y * 4.0f)) * 10.0f) - 10.0f;
 
 	UpdateMatrices();
 
@@ -240,6 +310,24 @@ void Aeroplane::LoadResources(void)
 	s_pPropMesh = CommonMesh::LoadFromXFile(Application::s_pApp, "Resources/Plane/prop.x");
 	s_pTurretMesh = CommonMesh::LoadFromXFile(Application::s_pApp, "Resources/Plane/turret.x");
 	s_pGunMesh = CommonMesh::LoadFromXFile(Application::s_pApp, "Resources/Plane/gun.x");
+	s_pBulletMesh = CommonMesh::LoadFromXFile(Application::s_pApp, "Resources/Plane/bullet.x");
+
+	/*if (bulletMesh.size() > 0)
+	{
+		if (bulletMesh[0] == nullptr)
+		{
+			s_pBulletMesh = CommonMesh::LoadFromXFile(Application::s_pApp, "Resources/Plane/bullet.x");
+
+		}
+		else
+		{
+			for (int i = 0; i < bulletMesh.size(); i++)
+			{
+
+			}
+		}
+	}*/
+	
 }
 
 void Aeroplane::ReleaseResources(void)
@@ -248,19 +336,29 @@ void Aeroplane::ReleaseResources(void)
 	delete s_pPropMesh;
 	delete s_pTurretMesh;
 	delete s_pGunMesh;
+	delete s_pBulletMesh;
 }
 
 void Aeroplane::Draw(void)
 {
 	Application::s_pApp->SetWorldMatrix(m_mWorldMatrix);
 	s_pPlaneMesh->Draw();
-
+	
 	Application::s_pApp->SetWorldMatrix(m_mPropWorldMatrix);
 	s_pPropMesh->Draw();
-
+	
 	Application::s_pApp->SetWorldMatrix(m_mTurretWorldMatrix);
 	s_pTurretMesh->Draw();
 
 	Application::s_pApp->SetWorldMatrix(m_mGunWorldMatrix);
 	s_pGunMesh->Draw();
+
+
+	/*Application::s_pApp->SetWorldMatrix(m_mBulletWorldMatrix);
+	s_pBulletMesh->Draw();*/
+	for (int i = 0; i < bulletContainer.size(); i++)
+	{
+		Application::s_pApp->SetWorldMatrix(bulletContainer[i]->bulletWorldPosition);
+		s_pBulletMesh->Draw();
+	}
 }

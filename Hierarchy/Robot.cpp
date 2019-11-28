@@ -306,10 +306,6 @@ void Robot::Update()
 
 void Robot::LoadResources(Robot* robotmesh)
 {
-	/*for (int i = 1; i < skeletonParts.size(); i++)
-	{
-		skeletonParts[i].LoadResource(folderName);
-	}*/
 	//mesh has root. reason meshcollection is i-1 is due to
 	if (robotmesh->meshCollection[0] == NULL)
 	{

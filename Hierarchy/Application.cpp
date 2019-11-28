@@ -1,3 +1,4 @@
+
 #include "Application.h"
 #include "Heightmap.h"
 #include "Aeroplane.h"
@@ -173,9 +174,9 @@ void Application::HandleRender()
 	m_pHeightMap->Draw();
 	m_pAeroplane->Draw();
 	m_pRobot->DrawAll();
-	m_pRobot1->DrawAll();
-	m_pRobot2->DrawAll();
-	m_pRobot3->DrawAll();
+	//m_pRobot1->DrawAll();
+	//m_pRobot2->DrawAll();
+	//m_pRobot3->DrawAll();
 }
 
 //////////////////////////////////////////////////////////////////////

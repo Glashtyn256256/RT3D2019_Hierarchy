@@ -11,6 +11,7 @@
 //*********************************************************************************************
 
 #include "Application.h"
+#include <vector>
 
 __declspec(align(16)) class Aeroplane
 {
@@ -32,8 +33,10 @@ __declspec(align(16)) class Aeroplane
 	static CommonMesh* s_pPropMesh; // Only one propellor mesh for all instances
 	static CommonMesh* s_pTurretMesh; // Only one turret mesh for all instances
 	static CommonMesh* s_pGunMesh; // Only one gun mesh for all instances
+	static CommonMesh* s_pBulletMesh;
 
 	static bool s_bResourcesReady;
+	int test;
 
 	XMFLOAT4 m_v4Rot; // Euler rotation angles
 	XMFLOAT4 m_v4Pos; // World position
@@ -56,6 +59,11 @@ __declspec(align(16)) class Aeroplane
 	XMFLOAT4 m_v4GunOff; // Local offset
 	XMMATRIX m_mGunWorldMatrix; // Gun's world transformation matrix
 
+	XMFLOAT4 m_v4BulletOff;
+	XMFLOAT4 m_v4BulletRot;
+	XMFLOAT4 m_v4BulletScale;
+	XMMATRIX m_mBulletWorldMatrix;
+
 	XMFLOAT4 m_v4CamRot; // Local rotation angles
 	XMFLOAT4 m_v4CamOff; // Local offset
 
@@ -63,6 +71,26 @@ __declspec(align(16)) class Aeroplane
 	XMMATRIX m_mCamWorldMatrix; // Camera's world transformation matrix
 
 	bool m_bGunCam;
+
+	__declspec(align(16)) class GunBullet
+	{
+	public:
+		GunBullet(XMMATRIX bulletworldposition);
+		XMFLOAT4 bulletOffset;
+		XMFLOAT4 bulletRotation;
+		XMFLOAT4 bulletScale;
+		XMMATRIX bulletWorldPosition;
+		float survivalTime;
+		float speedBullet;
+
+	};
+
+	GunBullet* newBullet;
+	std::vector<GunBullet*> bulletContainer;
+	void deleteBullet();
+	static std::vector<CommonMesh*> bulletMesh;
+	
+
 
   public:
 	float GetXPosition(void) { return m_v4Pos.x; }
@@ -88,5 +116,6 @@ __declspec(align(16)) class Aeroplane
 		_mm_free(p);
 	}
 };
+
 
 #endif
