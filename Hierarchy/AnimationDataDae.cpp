@@ -134,7 +134,7 @@ void AnimationDataDae::readDaeFile(const char* filePath)
 	}
 	else 
 	{
-
+		
 	}
 
 }

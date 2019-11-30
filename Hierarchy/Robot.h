@@ -33,10 +33,13 @@ public:
 	//void SetWorldPosition(float fX, float fY, float fZ);
 private:
 	Skeleton* skeleton;
-	std::vector<Skeleton> skeletonParts;
+	std::vector<Skeleton*> skeletonParts;
+	std::map<std::string, Skeleton*> skeletonParentBone;
+	//std::vector<std::string> skeletonPartsParent;
 	//std::vector<std::string> skeletonPartsParent;
 	//Instead of the string I've changed it to the position in the array, saves me looping through for loops.
-	std::vector<int> skeletonPartsParent; 
+	//std::vector<int> skeletonPartsParent; 
+	 
 	std::string folderName;
 	XMFLOAT4 m_v4WorldPosition;
 	XMFLOAT4 m_v4RotationPosition;

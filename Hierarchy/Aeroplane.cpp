@@ -14,7 +14,7 @@ CommonMesh* Aeroplane::s_pPlaneMesh = NULL;
 CommonMesh* Aeroplane::s_pPropMesh = NULL;
 CommonMesh* Aeroplane::s_pTurretMesh = NULL;
 CommonMesh* Aeroplane::s_pGunMesh = NULL;
-CommonMesh* Aeroplane::s_pBulletMesh = NULL;
+CommonMesh* Aeroplane::pBulletMesh = NULL;
 
 bool Aeroplane::s_bResourcesReady = false;
 
@@ -55,13 +55,13 @@ Aeroplane::Aeroplane(float fX, float fY, float fZ, float fRotY)
 
 Aeroplane::~Aeroplane(void)
 {
+	//delete newBullet;
 }
 Aeroplane::GunBullet::GunBullet(XMMATRIX bulletworldposition)
 {
 	XMMATRIX  mScale, mTran;
 
-
-	bulletOffset = {0.0f, 0.0f, 1.4f, 0.0f}; //this needs sorting you pleb
+	bulletOffset = {0.0f, 0.0f, 1.4f, 0.0f}; 
 	bulletRotation = { 0.0f,0.0f,0.0f,0.0f };
 	bulletScale = { 0.1f, 0.1f, 0.1f, 0.0f };
 	mTran = XMMatrixTranslationFromVector(XMLoadFloat4(&bulletOffset));
@@ -310,24 +310,7 @@ void Aeroplane::LoadResources(void)
 	s_pPropMesh = CommonMesh::LoadFromXFile(Application::s_pApp, "Resources/Plane/prop.x");
 	s_pTurretMesh = CommonMesh::LoadFromXFile(Application::s_pApp, "Resources/Plane/turret.x");
 	s_pGunMesh = CommonMesh::LoadFromXFile(Application::s_pApp, "Resources/Plane/gun.x");
-	s_pBulletMesh = CommonMesh::LoadFromXFile(Application::s_pApp, "Resources/Plane/bullet.x");
-
-	/*if (bulletMesh.size() > 0)
-	{
-		if (bulletMesh[0] == nullptr)
-		{
-			s_pBulletMesh = CommonMesh::LoadFromXFile(Application::s_pApp, "Resources/Plane/bullet.x");
-
-		}
-		else
-		{
-			for (int i = 0; i < bulletMesh.size(); i++)
-			{
-
-			}
-		}
-	}*/
-	
+	pBulletMesh = CommonMesh::LoadFromXFile(Application::s_pApp, "Resources/Plane/bullet.x");
 }
 
 void Aeroplane::ReleaseResources(void)
@@ -336,7 +319,7 @@ void Aeroplane::ReleaseResources(void)
 	delete s_pPropMesh;
 	delete s_pTurretMesh;
 	delete s_pGunMesh;
-	delete s_pBulletMesh;
+	delete pBulletMesh;
 }
 
 void Aeroplane::Draw(void)
@@ -359,6 +342,6 @@ void Aeroplane::Draw(void)
 	for (int i = 0; i < bulletContainer.size(); i++)
 	{
 		Application::s_pApp->SetWorldMatrix(bulletContainer[i]->bulletWorldPosition);
-		s_pBulletMesh->Draw();
+		pBulletMesh->Draw();
 	}
 }

@@ -12,6 +12,8 @@ public:
 	~Skeleton(void);
 
 	std::string GetPartName(void) { return partName; }
+	std::string GetParentName(void) { return parentName; }
+
 
 	float GetOffsetXPosition(void) { return m_v4SkeletonPositionOffset.x; }
 	float GetOffsetYPosition(void) { return m_v4SkeletonPositionOffset.y; }
@@ -29,16 +31,20 @@ public:
 	//void ReleaseResource(void); // Only free the resources once for all instances
 	
 	void SetLocalMatrix() {
-		m_mSkeletonLocalMatrix = transform.CalculateLocalMatrix(this->m_v4SkeletonPositionOffset, this->m_v4SkeletonRotation);
+		m_mSkeletonLocalMatrix = transform.CalculateLocalMatrix(m_v4SkeletonPositionOffset, m_v4SkeletonRotation);
 	}
 
 	void SetWorldMatrix(XMMATRIX parentsworldmatrix) 
 	{
-		m_mSkeletonWorldMatrix = transform.CalculateWorldMatrix(this->m_mSkeletonLocalMatrix, parentsworldmatrix);
+		m_mSkeletonWorldMatrix = transform.CalculateWorldMatrix(m_mSkeletonLocalMatrix, parentsworldmatrix);
 	}
 
 	void SetPartName(std::string partname) {
 		partName = partname;
+	}
+
+	void SetParentName(std::string parentname) {
+		parentName = parentname;
 	}
 
 	void SetSkeletonOffsetPosition(float x, float y, float z, float w)
@@ -68,12 +74,12 @@ public:
 	
 
 private:
-	
+	std::string partName;
+	std::string parentName;
 	XMFLOAT4 m_v4SkeletonRotation; // Euler rotation angles
 	XMFLOAT4 m_v4SkeletonPositionOffset; // offset
 	XMMATRIX m_mSkeletonLocalMatrix = XMMatrixIdentity();
 	XMMATRIX m_mSkeletonWorldMatrix = XMMatrixIdentity();
-	std::string partName;
 	Transform transform;
 	
 

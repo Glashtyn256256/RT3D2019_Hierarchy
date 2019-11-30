@@ -33,7 +33,7 @@ __declspec(align(16)) class Aeroplane
 	static CommonMesh* s_pPropMesh; // Only one propellor mesh for all instances
 	static CommonMesh* s_pTurretMesh; // Only one turret mesh for all instances
 	static CommonMesh* s_pGunMesh; // Only one gun mesh for all instances
-	static CommonMesh* s_pBulletMesh;
+	static CommonMesh* pBulletMesh;
 
 	static bool s_bResourcesReady;
 	int test;
@@ -88,7 +88,6 @@ __declspec(align(16)) class Aeroplane
 	GunBullet* newBullet;
 	std::vector<GunBullet*> bulletContainer;
 	void deleteBullet();
-	static std::vector<CommonMesh*> bulletMesh;
 	
 
 

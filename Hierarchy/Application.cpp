@@ -121,9 +121,9 @@ void Application::HandleUpdate()
 	m_pAeroplane->Update(m_cameraState != CAMERA_MAP);
 	
 	m_pRobot->Update();
-	/*m_pRobot1->Update();
+	m_pRobot1->Update();
 	m_pRobot2->Update();
-	m_pRobot3->Update();*/
+	m_pRobot3->Update();
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -174,9 +174,9 @@ void Application::HandleRender()
 	m_pHeightMap->Draw();
 	m_pAeroplane->Draw();
 	m_pRobot->DrawAll();
-	//m_pRobot1->DrawAll();
-	//m_pRobot2->DrawAll();
-	//m_pRobot3->DrawAll();
+	m_pRobot1->DrawAll();
+	m_pRobot2->DrawAll();
+	m_pRobot3->DrawAll();
 }
 
 //////////////////////////////////////////////////////////////////////

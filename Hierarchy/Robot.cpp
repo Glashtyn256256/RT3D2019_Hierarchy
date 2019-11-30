@@ -87,10 +87,13 @@ void Robot::ReadTextFileAndSetUpModel(std::string filepath)
 			textLineFromFile.end(), '\"'),
 			textLineFromFile.end());
 		skeleton->SetPartName(textLineFromFile);
-
+		
 		std::getline(textFile, textLineFromFile);
-		skeletonPartsParent.push_back(std::stoi(textLineFromFile));
-
+		textLineFromFile.erase(std::remove(textLineFromFile.begin(),
+			textLineFromFile.end(), '\"'),
+			textLineFromFile.end());
+		skeleton->SetParentName(textLineFromFile);
+	
 		getline(textFile, textLineFromFile);
 		std::vector<float> splitFloat;
 		std::stringstream splitString(textLineFromFile);
@@ -106,8 +109,9 @@ void Robot::ReadTextFileAndSetUpModel(std::string filepath)
 		skeleton->SetSkeletonRotationPosition(0.0f, 0.0f, 0.0f, 0.0f);
 
 		skeleton->SetLocalMatrix(); //now we have pos and rot we can set up the local matrix for the bone;
-		skeletonParts.push_back(*skeleton);
-		delete skeleton;
+		skeletonParts.push_back(skeleton);
+		skeletonParentBone.insert(std::make_pair(skeleton->GetPartName(), skeleton));
+		
 	}
 }
 
@@ -132,21 +136,33 @@ Robot::~Robot(void)
 {
 	delete animationAttack;
 	delete animationIdle;
+	delete animationDeath;
+
+	std::for_each(skeletonParentBone.begin(), skeletonParentBone.end(), [](std::pair<std::string, Skeleton* > data)
+	{
+		//key is the first value, second are the pointers we delete.
+		delete data.second;
+	});
+
 }
 
 void Robot::UpdateMatrices(void)
 {
 	for (int i = 0; i < skeletonParts.size(); i++)
 	{
-		skeletonParts[i].SetLocalMatrix();
+		
+		//skeletonParts[i].SetLocalMatrix();
+		skeletonParts[i]->SetLocalMatrix();
 
-		if (skeletonParts[i].GetPartName() == "root")
+		//for this to work needs root in the txt file, could change to 0 so if i == 0
+		if (skeletonParts[i]->GetPartName() == "root")
 		{
-			skeletonParts[i].SetWorldMatrix(m_mWorldPosition);
+			skeletonParts[i]->SetWorldMatrix(m_mWorldPosition);
 		}
 		else
-		{
-			skeletonParts[i].SetWorldMatrix(skeletonParts[skeletonPartsParent[i] - 1].GetWorldMatrix());
+		{	
+			skeleton = skeletonParentBone[skeletonParts[i]->GetParentName()];
+			skeletonParts[i]->SetWorldMatrix(skeleton->GetWorldMatrix());
 		}
 	}
 }
@@ -175,15 +191,15 @@ void Robot::Update()
 		}
 
 		//deltatime
-		animTime += 1.0f / 180;
+		animTime += 1.0f / 600;
 		for (int i = 0; i < skeletonParts.size(); i++)
 		{
 
 			//Gets the correct animation thanks to the naming
-			SkeletonAnimationData* data = currentAnimation->boneAnimation[skeletonParts[i].GetPartName()];
+			SkeletonAnimationData* data = currentAnimation->boneAnimation[skeletonParts[i]->GetPartName()];
 			if (data)
 			{
-				Skeleton& bone = skeletonParts[i];
+				Skeleton* bone = skeletonParts[i];
 
 				if (animTime >= currentAnimation->endTime)
 				{
@@ -199,7 +215,7 @@ void Robot::Update()
 
 						if (currentTranFrame == 0)
 						{
-							previousTranslationF4 = bone.GetOffsetPosition();
+							previousTranslationF4 = bone->GetOffsetPosition();
 						}
 						else
 						{
@@ -221,7 +237,7 @@ void Robot::Update()
 								XMFLOAT4 newTranslationF4;
 								XMStoreFloat4(&newTranslationF4, newTranslation);
 
-								bone.SetSkeletonOffsetPosition(newTranslationF4.x, newTranslationF4.y, newTranslationF4.z, 0.0f);
+								bone->SetSkeletonOffsetPosition(newTranslationF4.x, newTranslationF4.y, newTranslationF4.z, 0.0f);
 							}
 						}
 						else
@@ -249,7 +265,7 @@ void Robot::Update()
 
 						if (currentRotFrame == 0)
 						{
-							previousRotationF4 = bone.GetRotationPosition();
+							previousRotationF4 = bone->GetRotationPosition();
 						}
 						else
 						{
@@ -275,7 +291,7 @@ void Robot::Update()
 								XMFLOAT4 newRotationF4;
 								XMStoreFloat4(&newRotationF4, newRotation);
 
-								bone.SetSkeletonRotationPosition(newRotationF4.x, newRotationF4.y, newRotationF4.z, 0.0f);
+								bone->SetSkeletonRotationPosition(newRotationF4.x, newRotationF4.y, newRotationF4.z, 0.0f);
 							}
 						}
 
@@ -312,7 +328,7 @@ void Robot::LoadResources(Robot* robotmesh)
 		for (int i = 1; i < skeletonParts.size(); i++)
 		{
 			std::string foldername;
-			foldername = "Resources/" + folderName + "/" + skeletonParts[i].GetPartName() + ".x";
+			foldername = "Resources/" + folderName + "/" + skeletonParts[i]->GetPartName() + ".x";
 			meshCollection[i - 1] = CommonMesh::LoadFromXFile(Application::s_pApp, foldername.c_str());
 			//^^this is needed since we need to start mesh collection from 0
 		}
@@ -329,11 +345,6 @@ void Robot::LoadResources(Robot* robotmesh)
 
 void Robot::ReleaseResources(void)
 {
-	/*for (int i = 1; i < skeletonParts.size(); i++)
-	{
-	skeletonParts[i].ReleaseResource();
-	}*/
-
 	for (int i = 0; i < meshCollection.size(); i++)
 	{
 		delete meshCollection[i];
@@ -345,7 +356,7 @@ void Robot::DrawAll(void)
 
 	for (int i = 1; i < skeletonParts.size(); i++)
 	{
-		Application::s_pApp->SetWorldMatrix(skeletonParts[i].GetWorldMatrix());
+		Application::s_pApp->SetWorldMatrix(skeletonParts[i]->GetWorldMatrix());
 		meshCollection[i - 1]->Draw();
 	}
 
